@@ -130,7 +130,7 @@ if __name__ == '__main__':
         if value < 0 or value > 30:
             raise Exception('Unsupported value for record stop current. Must be between 0.00 and 0.30 A')
 
-        command = um24c_command((value + b'\xb0').to_bytes(1, 'big'))
+        command = um24c_command((value + 0xb0).to_bytes(1, 'big'))
         characteristics.write(command)
 
     if command == 'set_backlight_level':
@@ -138,7 +138,7 @@ if __name__ == '__main__':
         if value < 0 or value > 5:
             raise Exception('Unsupported value for backlight level. Must be between 0 and 5')
 
-        command = um24c_command((value + b'\xd0').to_bytes(1, 'big'))
+        command = um24c_command((value + 0xd0).to_bytes(1, 'big'))
         characteristics.write(command)
 
     if command == 'set_backlight_off_delay':
@@ -146,7 +146,7 @@ if __name__ == '__main__':
         if value < 0 or value > 15:
             raise Exception('Unsupported value for backlight off delay. Must be between 0 and 15 minutes')
 
-        command = um24c_command((value + b'\xe0').to_bytes(1, 'big'))
+        command = um24c_command((value + 0xe0).to_bytes(1, 'big'))
         characteristics.write(command)
 
     if command == 'button_next':
