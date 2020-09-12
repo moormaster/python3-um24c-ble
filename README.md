@@ -5,7 +5,7 @@ https://www.amazon.de/USB-Spannungspr%C3%BCfer-Stromtester-Stromz%C3%A4hler-USB-
 # BLE protocol
 
 Protocol is based on https://github.com/NiceLabs/atorch-console/blob/master/docs/protocol-design.md
-... but command codes and measurement report differs and have been reverse engineered from the app
+But command codes and reply differs as described at https://sigrok.org/wiki/RDTech_UM_series
 
 App: http://files.banggood.com/2018/05/Android-APP.apk
 Manual: https://files.banggood.com/2018/05/A3&A3-B.pdf

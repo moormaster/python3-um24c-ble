@@ -26,32 +26,33 @@ Device broadcast name: UD18-BLE
 
 | Offset | Field                                           | Block size | Note                                |
 | -----: | ----------------------------------------------- | ---------- | ----------------------------------- |
+|   `00` | Model ID (= 0x0963)                             | 2 byte     | 16 bit
 |   `02` | Voltage                                         | 2 byte     | 16 bit BE (divide by 100)           |
 |   `04` | Current                                         | 2 byte     | 16 bit BE (divide by 1000)          |
 |   `06` | Power in watt                                   | 4 byte     | 32 bit BE (divide by 1000)          |
 |   `0A` | Temperature in celsius                          | 2 byte     | 16 bit BE                           |
 |   `0C` | Temperature in fahrenheit                       | 2 byte     | 16 bit BE                           |
-|   `0F` | Active group                                    | 1 byte     | 8 bit BE                            |
-|   `10` | Ampere hours group 0                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `14` | Watt hours group 0                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `18` | Ampere hours group 1                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `1C` | Watt hours group 1                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `20` | Ampere hours group 2                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `24` | Watt hours group 2                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `28` | Ampere hours group 3                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `2C` | Watt hours group 3                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `30` | Ampere hours group 4                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `34` | Watt hours group 4                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `38` | Ampere hours group 5                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `3C` | Watt hours group 5                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `40` | Ampere hours group 6                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `44` | Watt hours group 6                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `48` | Ampere hours group 7                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `4C` | Watt hours group 7                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `50` | Ampere hours group 8                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `54` | Watt hours group 8                              | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `58` | Ampere hours group 9                            | 4 byte     | 32 bit BE (divide by 1000)          |
-|   `5C` | Watt hours group 9                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `0E` | Active group                                    | 1 byte     | 8 bit BE                            |
+|   `0F` | Ampere hours group 0                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `13` | Watt hours group 0                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `17` | Ampere hours group 1                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `1B` | Watt hours group 1                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `2F` | Ampere hours group 2                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `23` | Watt hours group 2                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `27` | Ampere hours group 3                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `2B` | Watt hours group 3                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `3F` | Ampere hours group 4                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `33` | Watt hours group 4                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `37` | Ampere hours group 5                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `3B` | Watt hours group 5                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `4F` | Ampere hours group 6                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `43` | Watt hours group 6                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `47` | Ampere hours group 7                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `4B` | Watt hours group 7                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `5F` | Ampere hours group 8                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `53` | Watt hours group 8                              | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `57` | Ampere hours group 9                            | 4 byte     | 32 bit BE (divide by 1000)          |
+|   `5B` | Watt hours group 9                              | 4 byte     | 32 bit BE (divide by 1000)          |
 |   `60` | USB D+ voltage                                  | 2 byte     | 16 bit BE (divide by 100)           |
 |   `62` | USB D- voltage                                  | 2 byte     | 16 bit BE (divide by 100)           |
 |   `64` | Charge mode (0 - unknown, 1 - QC2.0, 2 - QC3.0) | 2 byte     | 16 bit BE                           |
@@ -59,9 +60,12 @@ Device broadcast name: UD18-BLE
 |   `6A` | Recorded watt hours                             | 4 byte     | 32 bit BE (divide by 1000)          |
 |   `6E` | Record-Stop current in ampere                   | 2 byte     | 16 bit BE (divide by 100)           |
 |   `70` | Recorded time in seconds                        | 4 byte     | 32 bit BE                           |
+|   `74` | Is recording?                                   | 2 byte     | 16 bit BE                           |
 |   `76` | Backlight off delay in minutes                  | 2 byte     | 16 bit BE                           |
 |   `78` | Backlight level                                 | 2 byte     | 16 bit BE                           |
 |   `7A` | Resistance in Ohm                               | 4 byte     | 32 bit BE (divide by 10)            |
+|   `7E` | Active screen shown                             | 2 byte     | 16 bit BE                           |
+
 
 ### Command
 
@@ -103,3 +107,4 @@ packet[packet.length - 1] == checksum;
 ## Thanks
 
 - <https://github.com/msillano/UD18-protocol-and-node-red>
+- <https://sigrok.org/wiki/RDTech_UM_series>

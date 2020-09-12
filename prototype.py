@@ -73,7 +73,7 @@ if __name__ == '__main__':
         temperature_in_celsius = int.from_bytes(data[10:12], 'big')
         temperature_in_fahrenheit = int.from_bytes(data[12:14], 'big')
 
-        current_group = int.from_bytes(data[15:16], 'big')
+        active_group = int.from_bytes(data[15:16], 'big')
 
         ampere_hours_of_group = []
         watt_hours_of_group = []
@@ -81,19 +81,22 @@ if __name__ == '__main__':
             ampere_hours_of_group.append( int.from_bytes(data[16 + i*8:20 + i*8], 'big') / 1000 )
             watt_hours_of_group.append( int.from_bytes(data[20 + i*8:24 + i*8], 'big') / 1000 )
         
+        usb_d_plus_in_volt = int.from_bytes(data[96:98], 'big') / 100
+        usb_d_minus_in_volt = int.from_bytes(data[98:100], 'big') / 100
+
         record_ampere_hours = int.from_bytes(data[102:106], 'big') / 1000
         record_watt_hours = int.from_bytes(data[106:110], 'big') / 1000
         record_stop_current_in_ampere = int.from_bytes(data[110:112], 'big') / 100
         record_time_in_seconds = int.from_bytes(data[112:116], 'big')
+        is_recording = int.from_bytes(data[116:118], 'big')
 
         backlight_off_delay_in_minutes = int.from_bytes(data[118:120], 'big')
         backlight_level = int.from_bytes(data[120:122], 'big')
 
         resistante_in_ohm = int.from_bytes(data[122:126], 'big') / 10
-        
-        usb_d_plus_in_volt = int.from_bytes(data[96:98], 'big') / 100
-        usb_d_minus_in_volt = int.from_bytes(data[98:100], 'big') / 100
 
+        active_screen = int.from_bytes(data[126:128], 'big')
+        
         # 0 - unknown
         # 1 - QC2.0
         # 2 - QC3.0
@@ -105,24 +108,28 @@ if __name__ == '__main__':
         print(temperature_in_celsius)
         print(temperature_in_fahrenheit)
         print("")
-        print(current_group)
+        print(active_group)
         for i in range(10):
             print("group " + str(i))
             print(ampere_hours_of_group[i])
             print(watt_hours_of_group[i])
             print("")
+        print("")
+        print(usb_d_plus_in_volt)
+        print(usb_d_minus_in_volt)
+        print("")
         print(record_ampere_hours)
         print(record_watt_hours)
         print(record_stop_current_in_ampere)
         print(record_time_in_seconds)
+        print(is_recording)
         print("")
         print(backlight_off_delay_in_minutes)
         print(backlight_level)
         print("")
         print(resistante_in_ohm)
         print("")
-        print(usb_d_plus_in_volt)
-        print(usb_d_minus_in_volt)
+        print(active_screen)
 
     if command == 'set_record_stop_current':
         value = float(sys.argv[3])
