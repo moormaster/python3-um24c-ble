@@ -183,7 +183,7 @@ def parse_report_response(data):
     measurement["temperature"] = {}
     measurement["temperature"]["celsius"] = int.from_bytes(data[10:12], 'big')
     measurement["temperature"]["fahrenheit"] = int.from_bytes(data[12:14], 'big')
-    measurement["resistante"] = { "ohm": int.from_bytes(data[122:126], 'big') / 10 }
+    measurement["resistance"] = { "ohm": int.from_bytes(data[122:126], 'big') / 10 }
 
     # 0 - unknown
     # 1 - QC2.0
