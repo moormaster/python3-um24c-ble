@@ -1,7 +1,9 @@
 from bluepy import btle
 
+import dataclasses
 import enum
 import sys
+import typing
 
 UM24C_SERVICE_UUID            = '0000FFE0-0000-1000-8000-00805F9B34FB'
 UM24C_CHARACTERISTICS_UUID    = '0000FFE1-0000-1000-8000-00805F9B34FB'
@@ -24,67 +26,48 @@ class Screen(enum.Enum):
     SETTINGS_INTERFACE = 6
 
 
+@dataclasses.dataclass
 class ReportMeasurementGroup:
-    def __init__(self, ampere_hours, watt_hours):
-        self.ampere_hours = ampere_hours
-        self.watt_hours = watt_hours
-
-    def __str__(self):
-        return self.__class__.__name__ + "(ampere_hours=" + str(self.ampere_hours) + ", watt_hours=" + str(self.watt_hours) + ")"
+    ampere_hours : float
+    watt_hours : float
 
 
+@dataclasses.dataclass
 class ReportMeasurementRecord:
-    def __init__(self, ampere_hours, watt_hours, recorded_time_in_seconds, is_recording):
-        self.ampere_hours = ampere_hours
-        self.watt_hours = watt_hours
-        self.recorded_time_in_seconds = recorded_time_in_seconds
-        self.is_recording = is_recording
-
-    def __str__(self):
-        return self.__class__.__name__ + "(ampere_hours=" + str(self.ampere_hours) + ", watt_hours=" + str(self.watt_hours) + ", recorded_time_in_seconds=" + str(self.recorded_time_in_seconds) + ", is_recording=" + str(self.is_recording) + ")"
+    ampere_hours : float
+    watt_hours : float
+    recorded_time_in_seconds : int
+    is_recording : bool
 
 
+@dataclasses.dataclass
 class ReportMeasurement:
-    def __init__(self, voltage_in_volt, current_in_ampere, power_in_watt, temperature_in_celsius, temperature_in_fahrenheit, resistance_in_ohm, usb_d_plus_in_volt, usb_d_minus_in_volt, charge_mode, active_group, groups, record):
-        self.voltage_in_volt = voltage_in_volt
-        self.current_in_ampere = current_in_ampere
-        self.power_in_watt = power_in_watt
-        self.temperature_in_celsius = temperature_in_celsius
-        self.temperature_in_fahrenheit = temperature_in_fahrenheit
-        self.resistance_in_ohm = resistance_in_ohm
-        self.usb_d_plus_in_volt = usb_d_plus_in_volt
-        self.usb_d_minus_in_volt = usb_d_minus_in_volt
-        self.charge_mode = charge_mode
-        self.active_group = active_group
-
-        self.groups = []
-        for group in groups:
-            self.groups.append(group)
-
-        self.record = record
-
-    def __str__(self):
-        return self.__class__.__name__ + "(voltage_in_volt=" + str(self.voltage_in_volt) + ", current_in_ampere=" + str(self.current_in_ampere) + ", power_in_watt=" + str(self.power_in_watt) + ", temperature_in_celsius=" + str(self.temperature_in_celsius) + ", temperature_in_fahrenheit=" + str(self.temperature_in_fahrenheit) + ", resistance_in_ohm=" + str(self.resistance_in_ohm) + ", usb_d_plus_in_volt=" + str(self.usb_d_plus_in_volt) + ", usb_d_minus_in_volt=" + str(self.usb_d_minus_in_volt) + ", charge_mode=" + str(self.charge_mode) + ", active_group=" + str(self.active_group) + ", groups=" + str(list(map(lambda x: str(x), self.groups))) + ", record=" + str(self.record) + ")"
+    voltage_in_volt : float
+    current_in_ampere : float
+    power_in_watt : float
+    temperature_in_celsius : float
+    temperature_in_fahrenheit : float
+    resistance_in_ohm : float
+    usb_d_plus_in_volt : float
+    usb_d_minus_in_volt : float
+    charge_mode : ChargeMode
+    active_group : int
+    groups : typing.Sequence[ReportMeasurementGroup]
+    record : ReportMeasurementRecord
 
 
+@dataclasses.dataclass
 class ReportSettings:
-    def __init__(self, record_stop_current_in_ampere, backlight_off_delay_in_minutes, backlight_level, active_screen):
-        self.record_stop_current_in_ampere = record_stop_current_in_ampere
-        self.backlight_off_delay_in_minutes = backlight_off_delay_in_minutes
-        self.backlight_level = backlight_level
-        self.active_screen = active_screen
-
-    def __str__(self):
-        return self.__class__.__name__ + "(record_stop_current_in_ampere=" + str(self.record_stop_current_in_ampere) + ", backlight_off_delay_in_minutes=" + str(self.backlight_off_delay_in_minutes) + ", backlight_level=" + str(self.backlight_level) + ", active_screen=" + str(self.active_screen) + ")"
+    record_stop_current_in_ampere : float
+    backlight_off_delay_in_minutes : int
+    backlight_level : int
+    active_screen : Screen
 
 
+@dataclasses.dataclass
 class ReportResponse:
-    def __init__(self, measurement, settings):
-        self.measurement = measurement
-        self.settings = settings
-
-    def __str__(self):
-        return self.__class__.__name__ + "(measurement=" + str(self.measurement) + ", settings=" + str(self.settings) + ")"
+    measurement : ReportMeasurement
+    settings : ReportSettings
 
 
 class UM24CBLEDelegate(btle.DefaultDelegate):
@@ -286,4 +269,5 @@ def parse_report_response(data):
 
     response = ReportResponse(measurement, settings)
 
-    return response 
+    return response
+
