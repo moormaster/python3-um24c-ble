@@ -1,96 +1,46 @@
+from .enums import ChargeMode
+from .enums import Screen 
+from .data import Report
+
 from bluepy import btle
 
-import dataclasses
-import enum
 import sys
-import typing
 
 UM24C_SERVICE_UUID            = '0000FFE0-0000-1000-8000-00805F9B34FB'
 UM24C_CHARACTERISTICS_UUID    = '0000FFE1-0000-1000-8000-00805F9B34FB'
 UM24C_DESCRIPTOR_UUID         = '00002902-0000-1000-8000-00805F9B34FB'
 
 
-class ChargeMode(enum.Enum):
-    UNKNOWN = 0
-    QC2_0 = 1
-    QC3_0 = 2
-
-
-class Screen(enum.Enum):
-    MEASUREMENT_MAIN_INTERFACE = 0
-    QUICK_CHARGE_RECOGNITION_INTERFACE = 1
-    DATA_RECORDING_INTERFACE = 2
-    WIRE_IMPEDANCE_MEASUREMENT_INTERFACE = 3
-    VOLTAGE_GRAPHING_INTERFACE = 4
-    CURRENT_GRAPHING_INTERFACE = 5
-    SETTINGS_INTERFACE = 6
-
-
-@dataclasses.dataclass
-class ReportMeasurementGroup:
-    ampere_hours : float
-    watt_hours : float
-
-
-@dataclasses.dataclass
-class ReportMeasurementRecord:
-    ampere_hours : float
-    watt_hours : float
-    recorded_time_in_seconds : int
-    is_recording : bool
-
-
-@dataclasses.dataclass
-class ReportMeasurement:
-    voltage_in_volt : float
-    current_in_ampere : float
-    power_in_watt : float
-    temperature_in_celsius : float
-    temperature_in_fahrenheit : float
-    resistance_in_ohm : float
-    usb_d_plus_in_volt : float
-    usb_d_minus_in_volt : float
-    charge_mode : ChargeMode
-    active_group : int
-    groups : typing.Sequence[ReportMeasurementGroup]
-    record : ReportMeasurementRecord
-
-
-@dataclasses.dataclass
-class ReportSettings:
-    record_stop_current_in_ampere : float
-    backlight_off_delay_in_minutes : int
-    backlight_level : int
-    active_screen : Screen
-
-
-@dataclasses.dataclass
-class ReportResponse:
-    measurement : ReportMeasurement
-    settings : ReportSettings
-
-
-class UM24CBLEDelegate(btle.DefaultDelegate):
-    def __init__(self, debug=False):
-        self.debug = False
-        if debug:
-            self.debug = True
-
-        self.data = b''
-
-    def handleNotification(self, cHandle, data):
-        if self.debug:
-            print("Received data on cHandle=" + str(cHandle) + ": " + str(data), file=sys.stderr)
-        self.data += data
-
-    def consumeNotification(self):
-        data = self.data
-        self.data = b''
-
-        return data
-
 class UM24CBLE:
-    def __init__(self, device_address=None, hci_device=None, debug=False):
+    """Class to access a um24c device via bluetooth low energy."""
+
+    class UM24CBLEDelegate(btle.DefaultDelegate):
+        def __init__(self, debug: bool = False):
+            self.debug = False
+            if debug:
+                self.debug = True
+    
+            self.data = b''
+    
+        def handleNotification(self, cHandle, data):
+            if self.debug:
+                print("Received data on cHandle=" + str(cHandle) + ": " + str(data), file=sys.stderr)
+            self.data += data
+    
+        def consumeNotification(self) -> None:
+            data = self.data
+            self.data = b''
+    
+            return data
+
+    def __init__(self, device_address: str = None, hci_device: str = None, debug: bool = False):
+        """Creates an UM24CBLE instance and optionally connects to the given remote device.
+
+        Parameters:
+            device_address  - address of the remote device to connect to, i.e. '11:22:33:44:55:66'
+            hci_device      - bluetooth device to use. Default: 'hci0'
+            debug           - If set to true prints all received data to stderr
+        """
         self.device_address=None
         self.debug = False
         self.hci_device='hci0'
@@ -110,7 +60,7 @@ class UM24CBLE:
             self.connect(device_address)
 
     def _connect(self, device_address):
-        self.delegate = UM24CBLEDelegate(self.debug)
+        self.delegate = UM24CBLE.UM24CBLEDelegate(self.debug)
         self.peripheral = btle.Peripheral(deviceAddr=device_address, iface=self.hci_device.replace('hci', '')).withDelegate(self.delegate)
 
         if not self.peripheral:
@@ -146,7 +96,12 @@ class UM24CBLE:
 
         return True
 
-    def connect(self, device_address=None):
+    def connect(self, device_address: str = None) -> bool:
+        """Establishes a connection to the given device.
+        
+        Parameters:
+            device_address  - address of the remote device to connect to, i.e. '11:22:33:44:55:66'
+        """
         if not device_address:
             device_address = self.device_address
 
@@ -161,7 +116,8 @@ class UM24CBLE:
 
         return True
 
-    def read(self):    
+    def read(self) -> Report:
+        """Read current measurement and settings from the device."""
         # subscribe to notifications
         self.descriptor.write(b'\x01\x00', withResponse=True)
 
@@ -181,7 +137,12 @@ class UM24CBLE:
 
         return response
 
-    def change_record_stop_current(self, ampere):
+    def change_record_stop_current(self, ampere: float) -> None:
+        """Change the value of current in ampere which stops the recording when deceeded.
+
+        Parameters:
+            ampere  - current in ampere
+        """
         value = float(ampere)
         value = int(value*100)
         if value < 0 or value > 30:
@@ -190,7 +151,12 @@ class UM24CBLE:
         command = create_um24c_command((value + 0xb0).to_bytes(1, 'big'))
         self.characteristics.write(command)
 
-    def change_backlight_level(self, level):
+    def change_backlight_level(self, level: int) -> None:
+        """Change backlight level.
+
+        Parameters:
+            level   - backlight level (0-5)
+        """
         value = int(level)
         if value < 0 or value > 5:
             raise Exception('Unsupported value for backlight level. Must be between 0 and 5')
@@ -198,7 +164,12 @@ class UM24CBLE:
         command = create_um24c_command((value + 0xd0).to_bytes(1, 'big'))
         self.characteristics.write(command)
 
-    def change_backlight_off_delay(self, minutes):
+    def change_backlight_off_delay(self, minutes: int) -> None:
+        """Change delay until the backlight is turned off.
+
+        Parameters:
+            minutes - amount of minutes
+        """
         value = int(minutes)
         if value < 0 or value > 15:
             raise Exception('Unsupported value for backlight off delay. Must be between 0 and 15 minutes')
@@ -206,19 +177,56 @@ class UM24CBLE:
         command = create_um24c_command((value + 0xe0).to_bytes(1, 'big'))
         self.characteristics.write(command)
 
-    def button_next(self):
+    def next_screen(self) -> None:
+        """Show next screen."""
         command = create_um24c_command(b'\xf1')
         self.characteristics.write(command)
 
-    def button_rotate(self):
+    def show_screen(self, screen: Screen):
+        """Show specified screen."""
+        screen = Screen(screen)
+        report = self.read()
+
+        while screen.value != report.settings.active_screen.value:
+            count = screen.value - report.settings.active_screen.value
+            if count < 0:
+                count += 7
+
+            for i in range(count):
+                self.next_screen()
+
+            report = self.read()
+
+    def rotate_screen(self) -> None:
+        """Rotate screen right."""
         command = create_um24c_command(b'\xf2')
         self.characteristics.write(command)
 
-    def button_group(self):
+    def next_group(self) -> None:
+        """Switch to next measurement group."""
         command = create_um24c_command(b'\xf3')
         self.characteristics.write(command)
 
-    def button_clear(self):
+    def change_group(self, group: int):
+        """Change measurement group.
+
+        Parameters:
+            group - Index of measurement group (0-9)
+        """
+        report = self.read()
+
+        while group != report.settings.active_group:
+            count = group - report.settings.active_group
+            if count < 0:
+                count += 10
+
+            for i in range(count):
+                self.next_group()
+
+            report = self.read()
+
+    def clear(self) -> None:
+        """Clear record and measurement groups."""
         command = create_um24c_command(b'\xf4')
         self.characteristics.write(command)
 
@@ -237,17 +245,17 @@ def parse_report_response(data):
     groups = []
     for i in range(10):
         groups.append(
-            ReportMeasurementGroup(
+            Report.Measurement.Group(
                 ampere_hours=int.from_bytes(data[16 + i*8:20 + i*8], 'big') / 1000,
                 watt_hours=int.from_bytes(data[20 + i*8:24 + i*8], 'big') / 1000))
 
-    record = ReportMeasurementRecord(
+    record = Report.Measurement.Record(
         ampere_hours=int.from_bytes(data[102:106], 'big') / 1000,
         watt_hours=int.from_bytes(data[106:110], 'big') / 1000,
         recorded_time_in_seconds=int.from_bytes(data[112:116], 'big'),
         is_recording=True if int.from_bytes(data[116:118], 'big') > 0 else False)
 
-    measurement = ReportMeasurement(
+    measurement = Report.Measurement(
         voltage_in_volt=int.from_bytes(data[2:4], 'big') / 100,
         current_in_ampere=int.from_bytes(data[4:6], 'big') / 1000,
         power_in_watt=int.from_bytes(data[6:10], 'big') / 1000,
@@ -257,17 +265,17 @@ def parse_report_response(data):
         usb_d_plus_in_volt=int.from_bytes(data[96:98], 'big') / 100,
         usb_d_minus_in_volt=int.from_bytes(data[98:100], 'big') / 100,
         charge_mode=ChargeMode(int.from_bytes(data[100:102], 'big')),
-        active_group=int.from_bytes(data[15:16], 'big'),
         groups=groups,
         record=record)
 
-    settings = ReportSettings(
+    settings = Report.Settings(
         record_stop_current_in_ampere=int.from_bytes(data[110:112], 'big') / 100,
         backlight_off_delay_in_minutes=int.from_bytes(data[118:120], 'big'),
         backlight_level=int.from_bytes(data[120:122], 'big'),
+        active_group=int.from_bytes(data[15:16], 'big'),
         active_screen=Screen(int.from_bytes(data[126:128], 'big')))
 
-    response = ReportResponse(measurement, settings)
+    response = Report(measurement, settings)
 
     return response
 
