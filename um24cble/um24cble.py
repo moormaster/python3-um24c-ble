@@ -97,7 +97,7 @@ class UM24CBLE:
         return True
 
     def connect(self, device_address: str = None) -> bool:
-        """Establishes a connection to the given device.
+        """Establishes a connection to the given remote device.
         
         Parameters:
             device_address  - address of the remote device to connect to, i.e. '11:22:33:44:55:66'
@@ -115,6 +115,10 @@ class UM24CBLE:
         self.device_address = device_address
 
         return True
+
+    def disconnect(self):
+        """Disconnects from the remote device."""
+        self._disconnect()
 
     def read(self) -> Report:
         """Read current measurement and settings from the device."""
