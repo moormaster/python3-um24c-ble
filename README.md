@@ -1,5 +1,8 @@
 # Bluetooth Low Energy module for accessing UM24C / A3-B USB Color tester
 
+> [!WARNING]
+> This repository has been archived and migrated to https://codeberg.org/moormaster/python3-um24c-ble
+
 https://www.amazon.de/USB-Spannungspr%C3%BCfer-Stromtester-Stromz%C3%A4hler-USB-Multimeter-Tester-Multi-function/dp/B07DCS11GM/ref=sr_1_6
 
 ## Dependencies
